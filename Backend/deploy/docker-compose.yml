@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-docyou123456}
+      POSTGRES_DB: ${POSTGRES_DB:-docyou}
+      PGDATA: ${PGDATA:-/var/lib/postgresql/data/pgdata_new}
+    volumes:
+      - ./volumes/db/data:/var/lib/postgresql/data
+    ports:
+      - "${EXPOSE_POSTGRES_PORT:-5432}:5432"
+    networks:
+      - docyou_network
+  redis:
+    image: redis:6-alpine
+    restart: always
+    volumes:
+      - ./volumes/redis/data:/data
+    command: redis-server --requirepass docyou123456
+    ports:
+      - "${EXPOSE_REDIS_PORT:-6379}:6379"
+    networks:
+      - docyou_network
