@@ -7,7 +7,7 @@ const Home = async () => {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Loading type="area" />
         <div className="mt-10 text-center">
-          <Link href="/home">🚀</Link>
+          <Link href="/signin">🚀 TEST</Link>
         </div>
       </div>
     </div>

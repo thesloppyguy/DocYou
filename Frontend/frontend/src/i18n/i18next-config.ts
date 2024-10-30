@@ -8,7 +8,7 @@ const loadLangResources = (lang: string) => ({
   translation: {
     common: require(`./${lang}/common`).default,
     // layout: require(`./${lang}/layout`).default,
-    // login: require(`./${lang}/login`).default,
+    login: require(`./${lang}/login`).default,
     // register: require(`./${lang}/register`).default,
     // app: require(`./${lang}/app`).default,
     // appOverview: require(`./${lang}/app-overview`).default,

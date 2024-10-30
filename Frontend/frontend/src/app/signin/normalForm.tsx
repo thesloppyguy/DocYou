@@ -1,17 +1,24 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import Loading from "../components/base/loading";
-import MailAndPasswordAuth from "./components/mail-and-password-auth";
-import cn from "@/utils/classnames";
 import { invitationCheck } from "@/service/common";
 import Toast from "@/app/components/base/toast";
 import useRefreshToken from "@/hooks/use-refresh-token";
+import {
+  Box,
+  Button,
+  Card,
+  Flex,
+  Grid,
+  Heading,
+  Text,
+  TextField,
+} from "@radix-ui/themes";
+import { ThemesPanelBackgroundImage } from "../components/background/themesPanelBackgroundImage";
+import Loading from "../components/base/loading";
+import classNames from "@/utils/classnames";
 
 const NormalForm = () => {
   const { getNewAccessToken } = useRefreshToken();
-  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const consoleToken = decodeURIComponent(
@@ -26,7 +33,7 @@ const NormalForm = () => {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [workspaceName, setWorkSpaceName] = useState("");
-
+  console.log(workspaceName);
   const isInviteLink = Boolean(invite_token && invite_token !== "null");
 
   const init = useCallback(async () => {
@@ -74,7 +81,7 @@ const NormalForm = () => {
   if (isLoading || consoleToken) {
     return (
       <div
-        className={cn(
+        className={classNames(
           "flex flex-col items-center w-full grow justify-center",
           "px-6",
           "md:px-[108px]"
@@ -86,62 +93,102 @@ const NormalForm = () => {
   }
 
   return (
-    <>
-      <div className="w-full mx-auto mt-8">
-        {isInviteLink ? (
-          <div className="w-full mx-auto">
-            <h2 className="title-4xl-semi-bold text-text-primary">
-              {t("login.join")}
-              {workspaceName}
-            </h2>
-            <p className="mt-2 body-md-regular text-text-tertiary">
-              {t("login.joinTipStart")}
-              {workspaceName}
-              {t("login.joinTipEnd")}
-            </p>
-          </div>
-        ) : (
-          <div className="w-full mx-auto">
-            <h2 className="title-4xl-semi-bold text-text-primary">
-              {t("login.pageTitle")}
-            </h2>
-            <p className="mt-2 body-md-regular text-text-tertiary">
-              {t("login.welcome")}
-            </p>
-          </div>
-        )}
-        <div className="bg-white">
-          <MailAndPasswordAuth
-            isInvite={isInviteLink}
-            allowRegistration={true}
+    <Flex direction="column">
+      <Flex
+        direction="column"
+        position="relative"
+        mx={{ initial: "-5", xs: "-6", sm: "0" }}
+        px={{ initial: "6", sm: "8" }}
+        py={{ initial: "6", sm: "7" }}
+      >
+        <Flex
+          align="center"
+          justify="center"
+          position="absolute"
+          inset="0"
+          overflow="hidden"
+          style={{ background: "var(--gray-2)" }}
+        >
+          <ThemesPanelBackgroundImage
+            id="1"
+            style={{ width: "240%", marginLeft: "70%" }}
           />
-          <span className="system-xs-medium text-components-button-secondary-accent-text">
-            {t("login.useVerificationCode")}
-          </span>
-        </div>
-        <div className="w-full block mt-2 system-xs-regular text-text-tertiary">
-          {t("login.tosDesc")}
-          &nbsp;
-          <Link
-            className="system-xs-medium text-text-secondary hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://dify.ai/terms"
-          >
-            {t("login.tos")}
-          </Link>
-          &nbsp;&&nbsp;
-          <Link
-            className="system-xs-medium text-text-secondary hover:underline"
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://dify.ai/privacy"
-          >
-            {t("login.pp")}
-          </Link>
-        </div>
-      </div>
-    </>
+        </Flex>
+
+        <Box position="relative">
+          <Heading align="center" as="h3" size="6" mb="4">
+            Sign up
+          </Heading>
+
+          <Box maxWidth="400px" mx="auto">
+            <Card size="4">
+              <Flex direction="column" mb="5">
+                <Flex>
+                  <Text
+                    htmlFor="example-name"
+                    as="label"
+                    size="2"
+                    weight="medium"
+                    mb="1"
+                    trim="start"
+                  >
+                    Full name
+                  </Text>
+                </Flex>
+                <TextField.Root
+                  id="example-name"
+                  placeholder="Enter your name"
+                />
+              </Flex>
+
+              <Flex direction="column" mb="5">
+                <Flex>
+                  <Text
+                    htmlFor="example-email"
+                    as="label"
+                    size="2"
+                    weight="medium"
+                    mb="1"
+                  >
+                    Email
+                  </Text>
+                </Flex>
+                <TextField.Root
+                  id="example-email"
+                  placeholder="Enter your email address"
+                />
+              </Flex>
+
+              <Flex direction="column" mb="5">
+                <Flex>
+                  <Text
+                    htmlFor="example-password"
+                    as="label"
+                    size="2"
+                    weight="medium"
+                    mb="1"
+                  >
+                    Password
+                  </Text>
+                </Flex>
+                <TextField.Root
+                  id="example-password"
+                  placeholder="Enter your password"
+                />
+              </Flex>
+
+              <Grid
+                mt="5"
+                gap="4"
+                style={{ "--cursor-button": "pointer" } as React.CSSProperties}
+              >
+                <Button>Create account</Button>
+              </Grid>
+            </Card>
+          </Box>
+        </Box>
+      </Flex>
+    </Flex>
   );
 };
 

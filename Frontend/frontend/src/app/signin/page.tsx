@@ -1,8 +1,10 @@
-'use client'
-import NormalForm from './normalForm'
+"use client";
+import NormalForm from "./normalForm";
 
 const SignIn = () => {
-  return <NormalForm />
-}
+  return <p>TEST</p>;
 
-export default SignIn
+  return <NormalForm />;
+};
+
+export default SignIn;
