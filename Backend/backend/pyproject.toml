@@ -14,6 +14,7 @@ django-filter = "^24.3"
 djangorestframework-api-key = "^3.0.0"
 django-cors-headers = "^4.5.0"
 django-redis = "^5.4.0"
+psycopg2 = "^2.9.10"
 
 
 [build-system]

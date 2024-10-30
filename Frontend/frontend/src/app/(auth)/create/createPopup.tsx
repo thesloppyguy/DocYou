@@ -2,14 +2,13 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Loading from "../components/base/loading";
+import Loading from "@/app/components/base/loading";
 import classNames from "@/utils/classnames";
 import Button from "@/app/components/base/button";
 
@@ -22,6 +21,9 @@ import type {
   InitValidateStatusResponse,
   SetupStatusResponse,
 } from "@/models/common";
+import { Box, Heading, IconButton } from "@radix-ui/themes";
+import { EyeSlashIcon, EyeIcon } from "@heroicons/react/24/outline";
+import Input from "@/app/components/base/input";
 
 const validPassword = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
 
@@ -41,11 +43,11 @@ const accountFormSchema = z.object({
 
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
-const InstallPopup = () => {
+const CreatePopup = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
   const {
     register,
     handleSubmit,
@@ -93,19 +95,12 @@ const InstallPopup = () => {
   ) : (
     <>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="text-[32px] font-bold text-gray-900">
-          {t("login.setAdminAccount")}
-        </h2>
-        <p
-          className="
-          mt-1 text-sm text-gray-600
-        "
-        >
-          {t("login.setAdminAccountDesc")}
-        </p>
+        <Heading align="center" as="h2" size="6" mb="4">
+          {t("login.setAccount")}
+        </Heading>
       </div>
-      <div className="grow mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white ">
+      <div className="grow mt-4 sm:mx-auto sm:w-full sm:max-w-md">
+        <Box className="p-4 rounded-md">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-5">
               <label
@@ -115,12 +110,10 @@ const InstallPopup = () => {
                 {t("login.email")}
               </label>
               <div className="mt-1">
-                <input
+                <Input
+                  value={""}
                   {...register("email")}
                   placeholder={t("login.emailPlaceholder") || ""}
-                  className={
-                    "appearance-none block w-full rounded-lg pl-[14px] px-3 py-2 border border-gray-200 hover:border-gray-300 hover:shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 placeholder-gray-400 caret-primary-600 sm:text-sm"
-                  }
                 />
                 {errors.email && (
                   <span className="text-red-400 text-sm">
@@ -138,12 +131,10 @@ const InstallPopup = () => {
                 {t("login.name")}
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
-                <input
+                <Input
+                  value={""}
                   {...register("name")}
                   placeholder={t("login.namePlaceholder") || ""}
-                  className={
-                    "appearance-none block w-full rounded-lg pl-[14px] px-3 py-2 border border-gray-200 hover:border-gray-300 hover:shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 placeholder-gray-400 caret-primary-600 sm:text-sm pr-10"
-                  }
                 />
               </div>
               {errors.name && (
@@ -161,23 +152,24 @@ const InstallPopup = () => {
                 {t("login.password")}
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
-                <input
-                  {...register("password")}
+                <Input
+                  value={"dawd"}
                   type={showPassword ? "text" : "password"}
+                  {...register("password")}
                   placeholder={t("login.passwordPlaceholder") || ""}
-                  className={
-                    "appearance-none block w-full rounded-lg pl-[14px] px-3 py-2 border border-gray-200 hover:border-gray-300 hover:shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 placeholder-gray-400 caret-primary-600 sm:text-sm pr-10"
-                  }
                 />
-
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <button
+                  <IconButton
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500"
+                    className="text-gray-400 hover:text-gray-500 focus:outline-none focus:text-gray-500 bg-transparent"
                   >
-                    {showPassword ? "👀" : "😝"}
-                  </button>
+                    {showPassword ? (
+                      <EyeSlashIcon width="18" height="18" />
+                    ) : (
+                      <EyeIcon width="18" height="18" />
+                    )}
+                  </IconButton>
                 </div>
               </div>
 
@@ -191,31 +183,15 @@ const InstallPopup = () => {
             </div>
 
             <div>
-              <Button
-                variant="primary"
-                className="w-full"
-                onClick={handleSetting}
-              >
-                {t("login.installBtn")}
+              <Button variant="soft" className="w-full" onClick={handleSetting}>
+                {t("login.createAndSignIn")}
               </Button>
             </div>
           </form>
-          <div className="block w-full mt-2 text-xs text-gray-600">
-            {t("login.license.tip")}
-            &nbsp;
-            <Link
-              className="text-primary-600"
-              target="_blank"
-              rel="noopener noreferrer"
-              href={"https://docs.dify.ai/user-agreement/open-source"}
-            >
-              {t("login.license.link")}
-            </Link>
-          </div>
-        </div>
+        </Box>
       </div>
     </>
   );
 };
 
-export default InstallPopup;
+export default CreatePopup;

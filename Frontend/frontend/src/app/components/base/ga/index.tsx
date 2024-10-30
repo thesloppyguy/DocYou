@@ -1,7 +1,6 @@
 import type { FC } from "react";
 import React from "react";
 import Script from "next/script";
-import { IS_CE_EDITION } from "@/config";
 
 export enum GaType {
   admin = "admin",
@@ -18,8 +17,6 @@ export type IGAProps = {
 };
 
 const GA: FC<IGAProps> = ({ gaType }) => {
-  if (IS_CE_EDITION) return null;
-
   return (
     <div>
       <Script

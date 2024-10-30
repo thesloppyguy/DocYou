@@ -24,3 +24,6 @@ services:
       - "${EXPOSE_REDIS_PORT:-6379}:6379"
     networks:
       - docyou_network
+networks:
+  docyou_network:
+    driver: bridge

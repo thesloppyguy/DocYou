@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_filters',
-    'django_redis'
+    'django_redis',
     'rest_framework',
     'rest_framework_api_key'
 ]
@@ -124,7 +124,7 @@ REDIS_PASS = os.environ.get('REDIS_PASSWORD', "docyou123456")
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f'redis://:{REDIS_PASS}@localhost:6379/0',
+        "LOCATION": f'redis://:{REDIS_PASS}@{REDIS_HOST}:{REDIS_PORT}/0',
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
