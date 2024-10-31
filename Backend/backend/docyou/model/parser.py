@@ -1,6 +1,6 @@
 from django.db import models
-from docyou.models.accounts import Project, Account, Organization
-from docyou.models.base import BaseModel
+from docyou.model.accounts import Project, Account, Organization
+from docyou.model.base import BaseModel
 import json
 
 

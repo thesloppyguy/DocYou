@@ -8,3 +8,10 @@ class AccountRole(Enum):
     OWNER = 'OWNER'
     ADMIN = 'ADMIN'
     USER = 'USER'
+
+
+class AccountStatus(Enum):
+    pass
+
+
+class TenantAccountJoinRole(Enum):

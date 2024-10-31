@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'django_filters',
     'django_redis',
     'rest_framework',
-    'rest_framework_api_key'
+    'rest_framework_api_key',
+    'docyou'
 ]
 
 MIDDLEWARE = [
