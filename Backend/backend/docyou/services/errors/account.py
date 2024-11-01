@@ -51,3 +51,7 @@ class MemberNotInTenantError(BaseServiceError):
 
 class RoleAlreadyAssignedError(BaseServiceError):
     pass
+
+
+class SetupFailedError(BaseServiceError):
+    pass

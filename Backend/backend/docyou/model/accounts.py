@@ -18,9 +18,11 @@ class Account(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     name = models.CharField(max_length=256, null=False)
     email = models.EmailField(max_length=256, null=False)
-    last_active = models.DateField(null=True)
-    status = models.CharField(null=False, default='active')
-    access_level = models.CharField(null=False, default='level_1')
+    password = models.CharField(max_length=255, null=True)
+    password_salt = models.CharField(max_length=255, null=True)
+    last_active = models.DateTimeField(auto_now=True)
+    status = models.CharField(null=False, default='invited')
+    access_level = models.CharField(null=False, default='regular')
 
 
 class Project(models.Model):
@@ -29,7 +31,7 @@ class Project(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     name = models.CharField(null=False, default='default_project')
     limit = models.IntegerField(null=False, default=0)
-    status = models.CharField(null=False, default='Active')
+    status = models.CharField(null=False, default='active')
 
 
 class OrganizationAccountJoin(models.Model):
@@ -38,13 +40,16 @@ class OrganizationAccountJoin(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     account = models.ForeignKey(Account, on_delete=models.DO_NOTHING)
     organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING)
-    organization_role = models.CharField()
+    organization_role = models.CharField(null=False, default='user')
+    current = models.BooleanField(null=False, default=False)
 
 
 class OrganizationAccountProjectJoin(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
-    account = models.ForeignKey(Account, on_delete=models.DO_NOTHING)
+    account = models.ForeignKey(Account, null=True, on_delete=models.DO_NOTHING)
     organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING)
-    project_role = models.CharField()
+    project_role = models.CharField(null=False, default='tester')
+    organization_role = models.CharField(null=False, default='user')
+    current = models.BooleanField(null=False, default=False)

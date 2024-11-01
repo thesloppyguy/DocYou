@@ -1,14 +1,14 @@
-from Backend.backend.docyou.model.accounts import Account, OrganizationAccountJoin
-from docyou.controllers.console.setup import get_setup_status
+from docyou.utils.init import get_init_validate_status
+from docyou.controllers.console.workspace.errors import AccountNotInitializedError
+from docyou.model.accounts import Account, OrganizationAccountProjectJoin
+from docyou.services.account_service import SetupService
 from docyou.controllers.console.errors import NotInitValidateError, NotSetupError
+from django.contrib.auth import authenticate, login
+from django.conf import settings
 from rest_framework.response import Response
 from functools import wraps
+import jwt
 import os
-
-
-def get_init_validate_status(request):
-    session = request.session
-    return session
 
 
 def setup_required(view_func):
@@ -17,7 +17,7 @@ def setup_required(view_func):
         if not get_init_validate_status(request):
             raise NotInitValidateError()
 
-        elif not get_setup_status():
+        elif not SetupService.is_setup():
             raise NotSetupError()
 
         return view_func(view, request, *args, **kwargs)
@@ -48,15 +48,15 @@ def login_required(view_func):
                         workspace_id = request.headers.get('X-WORKSPACE-ID')
                         if workspace_id:
                             try:
-                                tenant_account_join = OrganizationAccountJoin.objects.select_related('organization') \
-                                    .get(organization__id=workspace_id, role='owner')
+                                oapj = OrganizationAccountProjectJoin.objects.select_related('organization') \
+                                    .get(organization__id=workspace_id, current=True)
                                 account = Account.objects.get(
-                                    id=tenant_account_join.account_id)
-                                # Login admin
+                                    id=oapj.account.id)
                                 if account:
-                                    account.current_organization = tenant_account_join.organization
+                                    account.current_organization = oapj.organization
+                                    account.current_project = oapj.project
                                     login(request, account)
-                            except OrganizationAccountJoin.DoesNotExist:
+                            except OrganizationAccountProjectJoin.DoesNotExist:
                                 return Response({'detail': 'Invalid workspace ID or role'}, status=401)
                             except Account.DoesNotExist:
                                 return Response({'detail': 'Account not found'}, status=401)
@@ -83,10 +83,10 @@ def account_initialization_required(view_func):
         account = Account.objects.get(id=playload['user_id'])
         if account.status == 'uninitialized':
             raise AccountNotInitializedError()
-        oaj = OrganizationAccountJoin.objects.filter(
+        oaj = OrganizationAccountProjectJoin.objects.filter(
             account=account, current=True).first()
         if not oaj:
-            oaj = OrganizationAccountJoin.objects.filter(
+            oaj = OrganizationAccountProjectJoin.objects.filter(
                 account=account).first()
             if not oaj:
                 raise AccountNotInitializedError()

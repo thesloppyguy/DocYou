@@ -1,4 +1,4 @@
-from docyou.libs.exception import Exception
+from docyou.libs.exception import BaseHTTPException as Exception
 
 
 class AlreadySetupError(Exception):
