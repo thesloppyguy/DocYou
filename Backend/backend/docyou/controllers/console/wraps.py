@@ -15,10 +15,10 @@ def setup_required(view_func):
     @wraps(view_func)
     def decorated(view, request, *args, **kwargs):
         if not get_init_validate_status(request):
-            raise NotInitValidateError()
+            return NotInitValidateError()
 
         elif not SetupService.is_setup():
-            raise NotSetupError()
+            return NotSetupError()
 
         return view_func(view, request, *args, **kwargs)
 

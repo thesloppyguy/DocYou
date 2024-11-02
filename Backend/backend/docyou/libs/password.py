@@ -1,11 +1,24 @@
+import base64
+import binascii
+import hashlib
+import re
 
-def compare_password():
-    pass
+password_pattern = r"^(?=.*[a-zA-Z])(?=.*\d).{8,}$"
 
 
-def hash_password():
-    pass
+def valid_password(password):
+    pattern = password_pattern
+    if re.match(pattern, password) is not None:
+        return password
+
+    raise ValueError('Not a valid password.')
 
 
-def valid_password():
-    pass
+def hash_password(password_str, salt_byte):
+    dk = hashlib.pbkdf2_hmac(
+        'sha256', password_str.encode('utf-8'), salt_byte, 10000)
+    return binascii.hexlify(dk)
+
+
+def compare_password(password_str, password_hashed_base64, salt_base64):
+    return hash_password(password_str, base64.b64decode(salt_base64)) == base64.b64decode(password_hashed_base64)

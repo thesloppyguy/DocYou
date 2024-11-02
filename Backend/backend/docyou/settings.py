@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
 import os
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -56,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'docyou.urls'
@@ -91,7 +95,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'docyou.wsgi.application'
-WSGI_APPLICATION = 'docyou.asgi.application'
+ASGI_APPLICATION = 'docyou.asgi.application'
 
 
 # Database
@@ -174,3 +178,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 300
+
+INIT_PASSWORD = 'TEST@123'

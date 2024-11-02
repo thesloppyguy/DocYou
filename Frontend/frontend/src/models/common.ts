@@ -9,12 +9,12 @@ export type OauthResponse = {
 }
 
 export type SetupStatusResponse = {
-  step: 'finished' | 'not_started'
+  status: 'Finished' | 'No Setup'
   setup_at?: Date
 }
 
 export type InitValidateStatusResponse = {
-  status: 'finished' | 'not_started'
+  status: 'Finished' | 'No Setup'
 }
 
 export type UserProfileResponse = {

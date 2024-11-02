@@ -1,5 +1,6 @@
 from docyou.controllers.console.wraps import login_required, setup_required
 from rest_framework.views import APIView
+from rest_framework.response import Response
 
 
 class GetAccountsAPI(APIView):
@@ -94,12 +95,8 @@ class UpdateProjectRoleAPI(APIView):
 
 class LoginAPI(APIView):
     @setup_required
-    def get(self, request):
-        pass
-
-    @setup_required
     def post(self, request):
-        pass
+        return Response({"status": "not_started"})
 
 
 class LogoutAPI(APIView):

@@ -74,21 +74,19 @@ const InstallPopup = () => {
     handleSubmit(onSubmit)();
   };
 
-  // useEffect(() => {
-  //   fetchSetupStatus().then((res: SetupStatusResponse) => {
-  //     if (res.step === 'finished') {
-  //       localStorage.setItem('setup_status', 'finished')
-  //       window.location.href = '/signin'
-  //     }
-  //     else {
-  //       fetchInitValidateStatus().then((res: InitValidateStatusResponse) => {
-  //         if (res.status === 'not_started')
-  //           window.location.href = '/init'
-  //       })
-  //     }
-  //     setLoading(false)
-  //   })
-  // }, [])
+  useEffect(() => {
+    fetchSetupStatus().then((res: SetupStatusResponse) => {
+      if (res.status === "Finished") {
+        localStorage.setItem("setup_status", "finished");
+        window.location.href = "/signin";
+      } else {
+        fetchInitValidateStatus().then((res: InitValidateStatusResponse) => {
+          if (res.status === "No Setup") window.location.href = "/init";
+        });
+      }
+      setLoading(false);
+    });
+  }, []);
 
   return loading ? (
     <Loading />
@@ -111,7 +109,6 @@ const InstallPopup = () => {
               </label>
               <div className="mt-1">
                 <Input
-                  value={""}
                   {...register("email")}
                   placeholder={t("login.emailPlaceholder") || ""}
                 />
@@ -132,7 +129,6 @@ const InstallPopup = () => {
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <Input
-                  value={""}
                   {...register("name")}
                   placeholder={t("login.namePlaceholder") || ""}
                 />
@@ -153,7 +149,6 @@ const InstallPopup = () => {
               </label>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <Input
-                  value={"dawd"}
                   type={showPassword ? "text" : "password"}
                   {...register("password")}
                   placeholder={t("login.passwordPlaceholder") || ""}

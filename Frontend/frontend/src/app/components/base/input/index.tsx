@@ -12,7 +12,7 @@ import { RootProps } from "@radix-ui/themes/dist/esm/components/text-field.js";
 import classNames from "@/utils/classnames";
 
 export type InputProps = {
-  value: string;
+  value?: string;
   placeholder: string;
   showLeftIcon?: boolean;
   showClearIcon?: boolean;

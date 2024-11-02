@@ -3,7 +3,7 @@ import secrets
 from django.db.models import Prefetch
 from django.core.paginator import Paginator
 from datetime import datetime, timedelta, timezone
-from typing import List
+from typing import List, Optional
 from django.core.cache import cache
 from docyou.utils.init import get_login_cache_key
 from docyou.libs.passport import PassportService
@@ -34,7 +34,7 @@ class AccountService:
         pass
 
     @staticmethod
-    def create_account(email: str, name: str | None, password: str | None) -> Account:
+    def create_account(email: str, name: Optional[str], password: Optional[str]) -> Account:
         account = Account()
         account.email = email
         if name:
@@ -206,7 +206,7 @@ class OrganizationService:
         pass
 
     @staticmethod
-    def create_organization(name: str | None, plan: str):
+    def create_organization(name: Optional[str], plan: str):
         organization = Organization()
         organization.name = name
         organization.plan = plan
@@ -248,14 +248,17 @@ class ProjectService:
         pass
 
     @staticmethod
-    def create_project(organization: Organization, account: Account, name: str | None, limit: int | None):
+    def create_project(organization: Organization, account: Optional[Account] = None, name: Optional[str] = None, limit: Optional[int] = None):
         project = Project()
-        project.name = name
-        project.limit = limit
+        if name:
+            project.name = name
+        if limit:
+            project.limit = limit
         project.save()
         oapj = OrganizationAccountProjectJoin()
         oapj.organization = organization
-        oapj.account = account
+        if account:
+            oapj.account = account
         oapj.project = project
         oapj.project_role = OrganizationAccountProjectRole.MANAGER.value
         oapj.organization_role = OragnizationAccountRole.ADMIN.value
@@ -281,20 +284,20 @@ class ProjectService:
         return project
 
     @staticmethod
-    def add_account_to_project(organization: Organization, account: Account, project: Project, project_role: str, organization_role: str):
+    def add_account_to_project(organization: Organization, account: Account, project: Project, project_role: str):
         oapj = OrganizationAccountProjectJoin()
         oapj.account = account
         oapj.organization = organization
         oapj.project = project
         oapj.project_role = project_role
-        oapj.organization_role = organization_role
+        oapj.save()
 
 
 class SetupService:
 
     @staticmethod
     def is_setup():
-        return True if Setup.objects.get() else False
+        return True if Setup.objects.all() else False
 
     @staticmethod
     def setup_master_workspace(email: str, name: str, password: str):
@@ -305,13 +308,17 @@ class SetupService:
                 email=email, name=name, password=password)
             account.access_level = AccessLevel.MAINTAINER.value
             account.save()
-            organization.save()
             OrganizationService.add_account_to_organization(
-                organization, account, OragnizationAccountRole.ADMIN.value)
+                organization, account, OragnizationAccountRole.ADMIN.value, project)
             ProjectService.add_account_to_project(
-                organization, account, project, role=OrganizationAccountProjectRole.MANAGER.value)
-        except:
-            organization.delete()
-            project.delete()
-            account.delete()
+                organization, account, project, project_role=OrganizationAccountProjectRole.MANAGER.value)
+            setup = Setup(version='latest')
+            setup.save()
+        except Exception as e:
+            print(e)
+            Setup.objects.all().delete()
+            OrganizationAccountProjectJoin.objects.all().delete()
+            Account.objects.all().delete()
+            Organization.objects.all().delete()
+            Project.objects.all().delete()
             raise SetupFailedError()

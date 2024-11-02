@@ -9,20 +9,22 @@ import os
 
 class SetupAPI(APIView):
     def get(self, request):
-        setup = SetupService.get_setup_status()
+        setup = SetupService.is_setup()
         if not setup:
             return Response({"status": "No Setup"})
         return Response({"status": "Finished"})
 
     def post(self, request):
-        if SetupService.get_setup_status():
+        if SetupService.is_setup():
             raise AlreadySetupError()
 
         if not get_init_validate_status(request):
             raise NotInitValidateError()
-        args = request.body()
+        args = request.data
         try:
             SetupService.setup_master_workspace(
                 args['email'], args['name'], args['password'])
+            return Response({'result': 'success'})
         except Exception as e:
-            return e
+            print(e)
+            raise e

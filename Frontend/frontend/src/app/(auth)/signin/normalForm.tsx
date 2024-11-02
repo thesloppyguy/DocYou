@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { invitationCheck } from "@/service/common";
+import { invitationCheck, login } from "@/service/common";
 import Toast from "@/app/components/base/toast";
 import useRefreshToken from "@/hooks/use-refresh-token";
 import { Box, Flex, Heading, IconButton, Link, Text } from "@radix-ui/themes";
@@ -10,13 +10,15 @@ import { useTranslation } from "react-i18next";
 import Input from "@/app/components/base/input";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import Button from "@/app/components/base/button";
-
+import { emailRegex } from '@/constant'
 const NormalForm = () => {
   const { t } = useTranslation();
   const { getNewAccessToken } = useRefreshToken();
   const [showPassword, setShowPassword] = React.useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const consoleToken = decodeURIComponent(
     searchParams.get("access_token") || ""
   );
@@ -31,14 +33,46 @@ const NormalForm = () => {
   const [workspaceName, setWorkSpaceName] = useState("");
   console.log(workspaceName);
   const isInviteLink = Boolean(invite_token && invite_token !== "null");
-
+  const handleEmailPasswordLogin = async () => {
+    if (!emailRegex.test(email)) {
+      Toast.notify({
+        type: 'error',
+        message: t('login.error.emailInValid'),
+      })
+      return
+    }
+    try {
+      setIsLoading(true)
+      const res = await login({
+        url: '/login',
+        body: {
+          email,
+          password,
+          remember_me: true,
+        },
+      })
+      if (res.result === 'success') {
+        localStorage.setItem('console_token', res.data.access_token)
+        router.replace('/home')
+      }
+      else {
+        Toast.notify({
+          type: 'error',
+          message: res.data,
+        })
+      }
+    }
+    finally {
+      setIsLoading(false)
+    }
+  }
   const init = useCallback(async () => {
     try {
       if (consoleToken && refreshToken) {
         localStorage.setItem("console_token", consoleToken);
         localStorage.setItem("refresh_token", refreshToken);
         getNewAccessToken();
-        router.replace("/apps");
+        router.replace("/home");
         return;
       }
 
@@ -71,9 +105,9 @@ const NormalForm = () => {
     isInviteLink,
     getNewAccessToken,
   ]);
-  // useEffect(() => {
-  //   init();
-  // }, [init]);
+  useEffect(() => {
+    init();
+  }, [init]);
   if (isLoading || consoleToken) {
     return (
       <div
@@ -87,7 +121,6 @@ const NormalForm = () => {
       </div>
     );
   }
-  const handleSubmit = () => {};
   return (
     <>
       <div className="sm:mx-auto sm:w-full sm:max-w-md px-4">
@@ -100,7 +133,7 @@ const NormalForm = () => {
       </div>
       <div className="grow mt-4 sm:mx-auto sm:w-full sm:max-w-md">
         <Box className="p-4 rounded-md">
-          <form onSubmit={handleSubmit}>
+          <form>
             <div className="mb-5">
               <label
                 htmlFor="email"
@@ -109,10 +142,7 @@ const NormalForm = () => {
                 {t("login.email")}
               </label>
               <div className="mt-1">
-                <Input
-                  value={""}
-                  placeholder={t("login.emailPlaceholder") || ""}
-                />
+                <Input placeholder={t("login.emailPlaceholder") || ""} value={email} onChange={(e: any)=> {setEmail(e.target.value)}}/>
               </div>
             </div>
 
@@ -133,9 +163,10 @@ const NormalForm = () => {
               </div>
               <div className="mt-1 relative rounded-md shadow-sm">
                 <Input
-                  value={"dawd"}
                   type={showPassword ? "text" : "password"}
                   placeholder={t("login.passwordPlaceholder") || ""}
+                  value={password}
+                  onChange={(e: any)=> {setPassword(e.target.value)}}
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                   <IconButton
@@ -158,7 +189,7 @@ const NormalForm = () => {
               <Button variant="outline" onClick={() => router.push("/create")}>
                 Create an account
               </Button>
-              <Button>Sign in</Button>
+              <Button onClick={handleEmailPasswordLogin}>Sign in</Button>
             </Flex>
           </form>
         </Box>
