@@ -34,12 +34,12 @@ def login_required(view_func):
         if admin_api_key_enable.lower() == 'true':
             if auth_header:
                 if ' ' not in auth_header:
-                    raise Response(
+                    return Response(
                         'Invalid Authorization header format. Expected \'Bearer <api-key>\' format.')
                 auth_scheme, auth_token = auth_header.split(None, 1)
                 auth_scheme = auth_scheme.lower()
                 if auth_scheme != 'bearer':
-                    raise Response(
+                    return Response(
                         'Invalid Authorization header format. Expected \'Bearer <api-key>\' format.')
                 admin_api_key = os.getenv('ADMIN_API_KEY')
 
@@ -77,19 +77,19 @@ def account_initialization_required(view_func):
         elif len(header_token) > 1:
             token = header_token[1]
         else:
-            raise AccountNotInitializedError()
+            return AccountNotInitializedError()
         sk = settings.SECRET_KEY
         playload = jwt.decode(token, sk, 'HS256')
         account = Account.objects.get(id=playload['user_id'])
         if account.status == 'uninitialized':
-            raise AccountNotInitializedError()
+            return AccountNotInitializedError()
         oaj = OrganizationAccountProjectJoin.objects.filter(
             account=account, current=True).first()
         if not oaj:
             oaj = OrganizationAccountProjectJoin.objects.filter(
                 account=account).first()
             if not oaj:
-                raise AccountNotInitializedError()
+                return AccountNotInitializedError()
             oaj.current = True
             oaj.save()
         account.current_tenant_id = (oaj.tenant.id)

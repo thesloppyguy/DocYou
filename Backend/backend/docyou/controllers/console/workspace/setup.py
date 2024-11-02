@@ -16,10 +16,10 @@ class SetupAPI(APIView):
 
     def post(self, request):
         if SetupService.is_setup():
-            raise AlreadySetupError()
+            return AlreadySetupError()
 
         if not get_init_validate_status(request):
-            raise NotInitValidateError()
+            return NotInitValidateError()
         args = request.data
         try:
             SetupService.setup_master_workspace(

@@ -60,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'docyou.middlewares.ErrorLoggingMiddleware'
 ]
 
 ROOT_URLCONF = 'docyou.urls'

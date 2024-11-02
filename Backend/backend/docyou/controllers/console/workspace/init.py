@@ -19,14 +19,19 @@ class InitValidateAPI(APIView):
     def post(self, request):
         tenant_count = Organization.objects.count()
         if tenant_count > 0:
-            raise AlreadySetupError()
+            return AlreadySetupError()
 
         parser = request.data
         input_password = parser.get("password")
         session = request.session
         if input_password != settings.INIT_PASSWORD:
             session["is_init_validated"] = False
-            raise InitValidateFailedError()
+            return InitValidateFailedError()
 
         session["is_init_validated"] = True
         return Response({"result": "success"}, status=201)
+
+
+class TestAPI(APIView):
+    def get(self, request):
+        return AlreadySetupError()
