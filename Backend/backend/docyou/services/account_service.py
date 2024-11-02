@@ -1,6 +1,6 @@
 import base64
 import secrets
-from django.db.models import Prefetch
+from django.db import transaction
 from django.core.paginator import Paginator
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
@@ -297,28 +297,24 @@ class SetupService:
 
     @staticmethod
     def is_setup():
-        return True if Setup.objects.all() else False
+        return True if Setup.objects.all().count() else False
 
     @staticmethod
     def setup_master_workspace(email: str, name: str, password: str):
         try:
-            organization, project = OrganizationService.create_organization(
-                'Master', SubsciptionPlans.UNLIMITED.value)
-            account = AccountService.create_account(
-                email=email, name=name, password=password)
-            account.access_level = AccessLevel.MAINTAINER.value
-            account.save()
-            OrganizationService.add_account_to_organization(
-                organization, account, OragnizationAccountRole.ADMIN.value, project)
-            ProjectService.add_account_to_project(
-                organization, account, project, project_role=OrganizationAccountProjectRole.MANAGER.value)
-            setup = Setup(version='latest')
-            setup.save()
+            with transaction.atomic():
+                organization, project = OrganizationService.create_organization(
+                    'Master', SubsciptionPlans.UNLIMITED.value)
+                account = AccountService.create_account(
+                    email=email, name=name, password=password)
+                account.access_level = AccessLevel.MAINTAINER.value
+                account.save()
+                OrganizationService.add_account_to_organization(
+                    organization, account, OragnizationAccountRole.ADMIN.value, project)
+                ProjectService.add_account_to_project(
+                    organization, account, project, project_role=OrganizationAccountProjectRole.MANAGER.value)
+                setup = Setup(version=settings.CURRENT_VERSION)
+                setup.save()
         except Exception as e:
             print(e)
-            Setup.objects.all().delete()
-            OrganizationAccountProjectJoin.objects.all().delete()
-            Account.objects.all().delete()
-            Organization.objects.all().delete()
-            Project.objects.all().delete()
             raise SetupFailedError()

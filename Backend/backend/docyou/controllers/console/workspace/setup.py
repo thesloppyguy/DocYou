@@ -27,4 +27,4 @@ class SetupAPI(APIView):
             return Response({'result': 'success'})
         except Exception as e:
             print(e)
-            raise e
+            return Response({'result': 'failed'}, status=500)
