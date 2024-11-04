@@ -8,6 +8,7 @@ const translation = {
   namePlaceholder: 'Your username',
   forget: 'Forgot Password?',
   signBtn: 'Sign in',
+  resetBtn: 'Reset',
   continueWithCode: 'Continue With Code',
   sendVerificationCode: 'Send Verification Code',
   usePassword: 'Use Password',
@@ -74,6 +75,8 @@ const translation = {
   activated: 'Sign in now',
   adminInitPassword: 'Admin Initialization Password',
   validate: 'Validate',
+  setResetPassword: "Reset Password",
+  setResetPasswordDesc: "Reset password link will be shared to your registered email id.",
   checkCode: {
     checkYourEmail: 'Check your email',
     tips: 'We send a verification code to <strong>{{email}}</strong>',

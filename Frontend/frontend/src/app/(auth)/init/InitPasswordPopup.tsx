@@ -8,6 +8,7 @@ import Button from "@/app/components/base/button";
 import { fetchInitValidateStatus, initValidate } from "@/service/common";
 import type { InitValidateStatusResponse } from "@/models/common";
 import { Heading } from "@radix-ui/themes";
+import Label from "@/app/components/base/label";
 
 const InitPasswordPopup = () => {
   const [password, setPassword] = useState("");
@@ -54,9 +55,7 @@ const InitPasswordPopup = () => {
         <div className="block mx-12 min-w-28">
           <div className="mb-4">
             <Heading align="center" as="h3" size="6" mb="4">
-              <label htmlFor="password" className="block text-sm font-medium">
-                {t("login.adminInitPassword")}
-              </label>
+              <Label label={t("login.password")} htmlFor="password" />
             </Heading>
             <div className="mt-1 relative rounded-md shadow-sm">
               <input

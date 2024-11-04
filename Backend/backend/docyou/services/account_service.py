@@ -1,9 +1,15 @@
 import base64
+from hashlib import sha256
+import json
+import logging
 import secrets
+import traceback
+import uuid
+from django.db.models import Prefetch
 from django.db import transaction
 from django.core.paginator import Paginator
 from datetime import datetime, timedelta, timezone
-from typing import List, Optional
+from typing import List, Optional, Any
 from django.core.cache import cache
 from docyou.utils.init import get_login_cache_key
 from docyou.libs.passport import PassportService
@@ -11,7 +17,7 @@ from docyou.libs.password import compare_password, hash_password, valid_password
 from docyou.model.accounts import Account, Organization, Project, OrganizationAccountProjectJoin, OrganizationAccountJoin
 from docyou.model.utils import Setup
 from docyou.model.defaults import AccessLevel, AccountStatus, OragnizationAccountRole, ProjectStatus, SubsciptionPlans, OrganizationAccountProjectRole, OrganizationStatus
-from docyou.services.errors.account import CurrentPasswordIncorrectError, NoPermissionError, SetupFailedError
+from docyou.services.errors.account import AccountLoginError, AccountRegisterError, CurrentPasswordIncorrectError, NoPermissionError, SetupFailedError
 from docyou.tasks.mail_invite_member_task import send_invite_member_mail_task
 from pydantic import BaseModel
 from django.conf import settings
@@ -107,9 +113,28 @@ class AccountService:
         return account
 
     @staticmethod
+    def authenticate(email: str, password: str):
+        account = Account.objects.filter(email=email).first()
+        if not account:
+            raise AccountLoginError('Invalid email or password.')
+
+        if account.status == AccountStatus.CLOSED.value:
+            raise AccountLoginError('Account is banned or closed.')
+
+        if account.status == AccountStatus.INVITED.value:
+            account.status = AccountStatus.ACTIVE.value
+            account.initialized_at = datetime.now(
+                timezone.utc).replace(tzinfo=None)
+            account.save()
+
+        if account.password is None or not compare_password(password, account.password, account.password_salt):
+            raise AccountLoginError('Invalid email or password.')
+        return account
+
+    @staticmethod
     def login(account: Account):
         exp = timedelta(days=30)
-        token = AccountService.get_account_jwt_token(account, exp=exp)
+        token = AccountService.get_account_jwt_token(account)
         cache.set(get_login_cache_key(account_id=account.id,
                   token=token), '1', int(exp.total_seconds()))
         return token
@@ -149,7 +174,7 @@ class AccountService:
             timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         exp = int(exp_dt.timestamp())
         payload = {
-            "user_id": account.id,
+            "user_id": str(account.id),
             "exp": exp,
         }
         token = PassportService().issue(payload)
@@ -164,10 +189,10 @@ class AccountService:
         if account.status == AccountStatus.CLOSED.value:
             raise NoPermissionError()
 
-        current_tenant = OrganizationAccountProjectJoin.query.filter_by(
+        current_organization = OrganizationAccountProjectJoin.query.filter_by(
             account_id=account.id, current=True).first()
-        if current_tenant:
-            account.current_tenant_id = current_tenant.tenant_id
+        if current_organization:
+            account.current_organization_id = current_organization.id
         else:
             available_ta = (
                 OrganizationAccountProjectJoin.query.filter_by(
@@ -176,7 +201,7 @@ class AccountService:
             if not available_ta:
                 return None
 
-            account.current_tenant_id = available_ta.tenant_id
+            account.current_organization_id = available_ta.organization_id
             available_ta.current = True
             account.save()
 
@@ -199,6 +224,26 @@ class AccountService:
         oapj.save()
         return account
 
+    @staticmethod
+    def setup_workspace(email: str, name: str, password: str):
+        try:
+            with transaction.atomic():
+                organization, project = OrganizationService.create_organization(
+                    None, SubsciptionPlans.UNLIMITED.value)
+                account = AccountService.create_account(
+                    email=email, name=name, password=password)
+                account.access_level = AccessLevel.REGULAR.value
+                account.save()
+                OrganizationService.add_account_to_organization(
+                    organization, account, OragnizationAccountRole.ADMIN.value, project)
+                ProjectService.add_account_to_project(
+                    organization, account, project, project_role=OrganizationAccountProjectRole.MANAGER.value)
+                setup = Setup(version=settings.CURRENT_VERSION)
+                setup.save()
+        except Exception as e:
+            print(e)
+            raise SetupFailedError()
+
 
 class OrganizationService:
     @staticmethod
@@ -208,7 +253,8 @@ class OrganizationService:
     @staticmethod
     def create_organization(name: Optional[str], plan: str):
         organization = Organization()
-        organization.name = name
+        if name:
+            organization.name = name
         organization.plan = plan
         organization.save()
         project = ProjectService.create_project(organization)
@@ -318,3 +364,145 @@ class SetupService:
         except Exception as e:
             print(e)
             raise SetupFailedError()
+
+
+class RegisterService:
+    @classmethod
+    def invite_new_member(cls, organization: Organization, email: str, language: str, role: str = 'USER', inviter: Account = None) -> str:
+        """Invite new member"""
+        try:
+            account = Account.objects.filter(email=email).first()
+
+            if not account:
+                name = email.split('@')[0]
+                account = cls.register(
+                    email=email, name=name, language=language, status=AccountStatus.PENDING, role=role)
+                # Create new organization member for invited organization
+                AccountService.create_account(organization, account)
+                OrganizationService.switch_organization(
+                    account, str(organization.id))
+                token = cls.generate_invite_token(organization, account)
+
+                # send email
+                send_invite_member_mail_task(
+                    language=account.interface_language,
+                    to=email,
+                    token=token,
+                    inviter_name=inviter.name if inviter else 'Loki',
+                    workspace_name=organization.name,
+                    workspace_id=str(organization.id),
+                )
+                return token
+            else:
+                OrganizationService.check_member_permission(
+                    inviter, account, 'add')
+                ta = OrganizationAccountProjectJoin.objects.filter(
+                    organization=organization,
+                    account=account
+                ).first()
+
+                if not ta:
+                    OrganizationService.create_organization_member(
+                        organization, account)
+
+                return None
+        except Exception as e:
+            print('the error =============', traceback.print_exc())
+            logging.error(f'Invite new member failed: {e}')
+            raise AccountRegisterError(f'Invite new member failed: {e}') from e
+
+    @classmethod
+    def generate_invite_token(cls, organization: Organization, account: Account) -> str:
+        token = str(uuid.uuid4())
+        invitation_data = {
+            'account_id': str(account.id),
+            'email': account.email,
+            'workspace_id': str(organization.id),
+        }
+        try:
+            expiryHours = int(settings.INVITE_EXPIRY_HOURS)
+        except (ValueError, KeyError):
+            expiryHours = 24
+
+        if expiryHours > 24 * 365:
+            raise ValueError(
+                "Expiry hours too large, please set a reasonable value.")
+
+        cache.set(
+            cls._get_invitation_token_key(token),
+            json.dumps(invitation_data),
+            expiryHours * 60 * 60
+        )
+        return token
+
+    @classmethod
+    def revoke_token(cls, workspace_id: str, email: str, token: str):
+        if workspace_id and email:
+            email_hash = sha256(email.encode()).hexdigest()
+            cache_key = 'member_invite_token:{}, {}:{}'.format(
+                workspace_id, email_hash, token)
+            cache.delete(cache_key)
+        else:
+            cache.delete(cls._get_invitation_token_key(token))
+
+    @classmethod
+    def get_invitation_if_token_valid(cls, workspace_id: str, email: str, token: str) -> Optional[dict[str, Any]]:
+        try:
+            invitation_data = cls._get_invitation_by_token(
+                token, workspace_id, email)
+
+            if not invitation_data:
+                return None
+
+            organization = Organization.objects.filter(
+                id=invitation_data['workspace_id'],
+                status='normal'
+            ).first()
+
+            if not organization:
+                return None
+            organization_account = Account.objects.prefetch_related(Prefetch(
+                'organizationaccountjoin_set', queryset=OrganizationAccountJoin.objects.filter(organization_id=organization.id))).get(email=invitation_data['email'])
+
+            if not organization_account:
+                return None
+
+            account = organization_account
+            if not account:
+                return None
+
+            if invitation_data['account_id'] != str(account.id):
+                return None
+
+            return {
+                'account': account,
+                'data': invitation_data,
+                'organization': organization,
+            }
+        except Exception as e:
+            print('the error =============', traceback.print_exc())
+            logging.error(f'Get invitation failed: {e}')
+            raise AccountRegisterError(f'Get invitation failed: {e}') from e
+
+    @classmethod
+    def _get_invitation_by_token(cls, token: str, workspace_id: str, email: str) -> Optional[dict[str, str]]:
+        if workspace_id is not None and email is not None:
+            email_hash = sha256(email.encode()).hexdigest()
+            cache_key = f'member_invite_token:{workspace_id}, {email_hash}:{token}'
+            account_id = cache.get(cache_key)
+
+            if not account_id:
+                return None
+
+            return {
+                'account_id': account_id.decode('utf-8'),
+                'email': email,
+                'workspace_id': workspace_id,
+            }
+        else:
+            data = cache.get(cls._get_invitation_token_key(token))
+            if not data:
+                return None
+
+            invitation = json.loads(data)
+            return invitation

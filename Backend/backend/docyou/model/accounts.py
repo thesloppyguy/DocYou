@@ -21,6 +21,7 @@ class Account(models.Model):
     password = models.CharField(max_length=255, null=True)
     password_salt = models.CharField(max_length=255, null=True)
     last_active = models.DateTimeField(auto_now=True)
+    interface_theme = models.CharField(null=False, default='light')
     status = models.CharField(null=False, default='invited')
     access_level = models.CharField(null=False, default='regular')
 
@@ -48,7 +49,8 @@ class OrganizationAccountProjectJoin(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
-    account = models.ForeignKey(Account, null=True, on_delete=models.DO_NOTHING)
+    account = models.ForeignKey(
+        Account, null=True, on_delete=models.DO_NOTHING)
     organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING)
     project_role = models.CharField(null=False, default='tester')
     organization_role = models.CharField(null=False, default='user')

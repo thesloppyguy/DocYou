@@ -4,6 +4,7 @@ import classNames from "@/utils/classnames";
 import { Card, Flex } from "@radix-ui/themes";
 import { ThemesPanelBackgroundImage } from "@/app/components/background/themesPanelBackgroundImage";
 import Header from "./_header";
+import ForgotPopup from "./forgotPopup";
 
 const ForgotPassword = () => {
   return (
@@ -27,7 +28,7 @@ const ForgotPassword = () => {
         >
           <ThemesPanelBackgroundImage id="1" style={{ width: "240%" }} />
         </Flex>
-        <Card className="m-auto">{/* <InitPasswordPopup /> */}</Card>
+        <Card className="m-auto">{ <ForgotPopup />}</Card>
       </div>
     </div>
   );

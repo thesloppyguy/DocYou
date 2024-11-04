@@ -1,22 +1,14 @@
 import type { Fetcher } from 'swr'
 import { del, get, patch, post, put } from './base'
 import type {
-  AccountIntegrate,
-  ApiBasedExtension,
-  CodeBasedExtension,
   CommonResponse,
-  DataSourceNotion,
+  CurrentOrganizationProjectResponse,
   FileUploadConfigResponse,
-  ICurrentWorkspace,
-  IWorkspace,
   InitValidateStatusResponse,
   InvitationResponse,
-  LangGeniusVersionResponse,
   Member,
   ModerateResponse,
   OauthResponse,
-  PluginProvider,
-  Provider,
   SetupStatusResponse,
   UserProfileOriginResponse,
 } from '@/models/common'
@@ -44,6 +36,10 @@ export const setup: Fetcher<CommonResponse, { body: Record<string, any> }> = ({ 
   return post<CommonResponse>('/setup', { body })
 }
 
+export const register: Fetcher<CommonResponse, { body: Record<string, any> }> = ({ body }) => {
+  return post<CommonResponse>('/register', { body })
+}
+
 export const initValidate: Fetcher<CommonResponse, { body: Record<string, any> }> = ({ body }) => {
   return post<CommonResponse>('/init', { body })
 }
@@ -68,10 +64,6 @@ export const logout: Fetcher<CommonResponse, { url: string; params: Record<strin
   return get<CommonResponse>(url, params)
 }
 
-export const fetchLanggeniusVersion: Fetcher<LangGeniusVersionResponse, { url: string; params: Record<string, any> }> = ({ url, params }) => {
-  return get<LangGeniusVersionResponse>(url, { params })
-}
-
 export const oauth: Fetcher<OauthResponse, { url: string; params: Record<string, any> }> = ({ url, params }) => {
   return get<OauthResponse>(url, { params })
 }
@@ -82,14 +74,6 @@ export const oneMoreStep: Fetcher<CommonResponse, { url: string; body: Record<st
 
 export const fetchMembers: Fetcher<{ accounts: Member[] | null }, { url: string; params: Record<string, any> }> = ({ url, params }) => {
   return get<{ accounts: Member[] | null }>(url, { params })
-}
-
-export const fetchProviders: Fetcher<Provider[] | null, { url: string; params: Record<string, any> }> = ({ url, params }) => {
-  return get<Provider[] | null>(url, { params })
-}
-
-export const fetchAccountIntegrates: Fetcher<{ data: AccountIntegrate[] | null }, { url: string; params: Record<string, any> }> = ({ url, params }) => {
-  return get<{ data: AccountIntegrate[] | null }>(url, { params })
 }
 
 export const inviteMember: Fetcher<InvitationResponse, { url: string; body: Record<string, any> }> = ({ url, body }) => {
@@ -108,12 +92,12 @@ export const fetchFilePreview: Fetcher<{ content: string }, { fileID: string }> 
   return get<{ content: string }>(`/files/${fileID}/preview`)
 }
 
-export const fetchCurrentWorkspace: Fetcher<ICurrentWorkspace, { url: string; params: Record<string, any> }> = ({ url, params }) => {
-  return get<ICurrentWorkspace>(url, { params })
+export const fetchCurrentOrganizationProject: Fetcher<CurrentOrganizationProjectResponse, { url: string; params: Record<string, any> }> = ({ url, params }) => {
+  return get<CurrentOrganizationProjectResponse>(url, { params })
 }
 
-export const updateCurrentWorkspace: Fetcher<ICurrentWorkspace, { url: string; body: Record<string, any> }> = ({ url, body }) => {
-  return post<ICurrentWorkspace>(url, { body })
+export const updateCurrentWorkspace: Fetcher<CurrentOrganizationProjectResponse, { url: string; body: Record<string, any> }> = ({ url, body }) => {
+  return post<CurrentOrganizationProjectResponse>(url, { body })
 }
 
 export const fetchWorkspaces: Fetcher<{ workspaces: IWorkspace[] }, { url: string; params: Record<string, any> }> = ({ url, params }) => {
@@ -240,3 +224,7 @@ export const sendResetPasswordCode = (email: string, language = 'en-US') =>
 
 export const verifyResetPasswordCode = (body: { email: string;code: string;token: string }) =>
   post<CommonResponse & { is_valid: boolean }>('/forgot-password/validity', { body })
+
+export const resetPassword: Fetcher<CommonResponse, { body: Record<string, any> }> = ({ body }) => {
+  return post<CommonResponse>('/reset', { body })
+}

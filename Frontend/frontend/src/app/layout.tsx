@@ -5,6 +5,7 @@ import SentryInitor from "./components/sentry-initor";
 import "@radix-ui/themes/styles.css";
 import { Theme, ThemePanel } from "@radix-ui/themes";
 import "./globals.css";
+import { useTheme } from "next-themes";
 // import { ThemeProvider } from "next-themes";
 
 export const metadata = {
@@ -59,11 +60,11 @@ const LocaleLayout = ({ children }: { children: React.ReactNode }) => {
       >
         {/* <ThemeProvider attribute="class"> */}
         <BrowserInitor>
-          <Theme accentColor="mint" grayColor="sage">
+          <Theme accentColor="mint" grayColor="sage" appearance={"dark"}>
             <SentryInitor>
               <I18nServer>{children}</I18nServer>
             </SentryInitor>
-            <ThemePanel />
+            {/* <ThemePanel /> */}
           </Theme>
         </BrowserInitor>
         {/* </ThemeProvider> */}

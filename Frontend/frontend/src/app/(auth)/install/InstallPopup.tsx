@@ -24,6 +24,7 @@ import type {
 import { Box, Heading, IconButton } from "@radix-ui/themes";
 import { EyeSlashIcon, EyeIcon } from "@heroicons/react/24/outline";
 import Input from "@/app/components/base/input";
+import Label from "@/app/components/base/label";
 
 const validPassword = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
 
@@ -101,12 +102,8 @@ const InstallPopup = () => {
         <Box className="p-4 rounded-md">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-5">
-              <label
-                htmlFor="email"
-                className="my-2 flex items-center justify-between text-sm font-medium text-gray-900"
-              >
-                {t("login.email")}
-              </label>
+              <Label label={t("login.email")} htmlFor="email" />
+
               <div className="mt-1">
                 <Input
                   {...register("email")}
@@ -121,12 +118,7 @@ const InstallPopup = () => {
             </div>
 
             <div className="mb-5">
-              <label
-                htmlFor="name"
-                className="my-2 flex items-center justify-between text-sm font-medium text-gray-900"
-              >
-                {t("login.name")}
-              </label>
+              <Label label={t("login.name")} htmlFor="name" />
               <div className="mt-1 relative rounded-md shadow-sm">
                 <Input
                   {...register("name")}
@@ -141,12 +133,7 @@ const InstallPopup = () => {
             </div>
 
             <div className="mb-5">
-              <label
-                htmlFor="password"
-                className="my-2 flex items-center justify-between text-sm font-medium text-gray-900"
-              >
-                {t("login.password")}
-              </label>
+              <Label label={t("login.password")} htmlFor="password" />
               <div className="mt-1 relative rounded-md shadow-sm">
                 <Input
                   type={showPassword ? "text" : "password"}

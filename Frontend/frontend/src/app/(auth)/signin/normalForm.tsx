@@ -10,15 +10,16 @@ import { useTranslation } from "react-i18next";
 import Input from "@/app/components/base/input";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
 import Button from "@/app/components/base/button";
-import { emailRegex } from '@/constant'
+import { emailRegex } from "@/constant";
+import Label from "@/app/components/base/label";
 const NormalForm = () => {
   const { t } = useTranslation();
   const { getNewAccessToken } = useRefreshToken();
   const [showPassword, setShowPassword] = React.useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const consoleToken = decodeURIComponent(
     searchParams.get("access_token") || ""
   );
@@ -36,36 +37,34 @@ const NormalForm = () => {
   const handleEmailPasswordLogin = async () => {
     if (!emailRegex.test(email)) {
       Toast.notify({
-        type: 'error',
-        message: t('login.error.emailInValid'),
-      })
-      return
+        type: "error",
+        message: t("login.error.emailInValid"),
+      });
+      return;
     }
     try {
-      setIsLoading(true)
+      setIsLoading(true);
       const res = await login({
-        url: '/login',
+        url: "/login",
         body: {
           email,
           password,
           remember_me: true,
         },
-      })
-      if (res.result === 'success') {
-        localStorage.setItem('console_token', res.data.access_token)
-        router.replace('/home')
-      }
-      else {
+      });
+      if (res.result === "success") {
+        localStorage.setItem("console_token", res.data.access_token);
+        router.replace("/home");
+      } else {
         Toast.notify({
-          type: 'error',
+          type: "error",
           message: res.data,
-        })
+        });
       }
+    } finally {
+      setIsLoading(false);
     }
-    finally {
-      setIsLoading(false)
-    }
-  }
+  };
   const init = useCallback(async () => {
     try {
       if (consoleToken && refreshToken) {
@@ -135,25 +134,21 @@ const NormalForm = () => {
         <Box className="p-4 rounded-md">
           <form>
             <div className="mb-5">
-              <label
-                htmlFor="email"
-                className="my-2 flex items-center justify-between text-sm font-medium text-gray-900"
-              >
-                {t("login.email")}
-              </label>
+              <Label label={t("login.email")} htmlFor="email" />
               <div className="mt-1">
-                <Input placeholder={t("login.emailPlaceholder") || ""} value={email} onChange={(e: any)=> {setEmail(e.target.value)}}/>
+                <Input
+                  placeholder={t("login.emailPlaceholder") || ""}
+                  value={email}
+                  onChange={(e: any) => {
+                    setEmail(e.target.value);
+                  }}
+                />
               </div>
             </div>
 
             <div className="mb-5">
               <div className="flex justify-between">
-                <label
-                  htmlFor="password"
-                  className="my-2 flex items-center justify-between text-sm font-medium text-gray-900"
-                >
-                  {t("login.password")}
-                </label>
+                <Label label={t("login.password")} htmlFor="password" />
                 <Link
                   href="/forgot-password"
                   className="text-sm content-center"
@@ -166,7 +161,9 @@ const NormalForm = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder={t("login.passwordPlaceholder") || ""}
                   value={password}
-                  onChange={(e: any)=> {setPassword(e.target.value)}}
+                  onChange={(e: any) => {
+                    setPassword(e.target.value);
+                  }}
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                   <IconButton

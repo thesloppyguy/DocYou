@@ -1,29 +1,20 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
-
 import { useRouter } from "next/navigation";
 
 import type { SubmitHandler } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Loading from "@/app/components/base/loading";
 import classNames from "@/utils/classnames";
 import Button from "@/app/components/base/button";
 
-import {
-  fetchInitValidateStatus,
-  fetchSetupStatus,
-  setup,
-} from "@/service/common";
-import type {
-  InitValidateStatusResponse,
-  SetupStatusResponse,
-} from "@/models/common";
+import { register as registerAccount } from "@/service/common";
 import { Box, Heading, IconButton } from "@radix-ui/themes";
 import { EyeSlashIcon, EyeIcon } from "@heroicons/react/24/outline";
 import Input from "@/app/components/base/input";
+import Label from "@/app/components/base/label";
 
 const validPassword = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
 
@@ -47,7 +38,6 @@ const CreatePopup = () => {
   const { t } = useTranslation();
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
   const {
     register,
     handleSubmit,
@@ -62,7 +52,7 @@ const CreatePopup = () => {
   });
 
   const onSubmit: SubmitHandler<AccountFormValues> = async (data) => {
-    await setup({
+    await registerAccount({
       body: {
         ...data,
       },
@@ -73,26 +63,7 @@ const CreatePopup = () => {
   const handleSetting = async () => {
     handleSubmit(onSubmit)();
   };
-
-  // useEffect(() => {
-  //   fetchSetupStatus().then((res: SetupStatusResponse) => {
-  //     if (res.step === 'finished') {
-  //       localStorage.setItem('setup_status', 'finished')
-  //       window.location.href = '/signin'
-  //     }
-  //     else {
-  //       fetchInitValidateStatus().then((res: InitValidateStatusResponse) => {
-  //         if (res.status === 'not_started')
-  //           window.location.href = '/init'
-  //       })
-  //     }
-  //     setLoading(false)
-  //   })
-  // }, [])
-
-  return loading ? (
-    <Loading />
-  ) : (
+  return (
     <>
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Heading align="center" as="h2" size="6" mb="4">
@@ -103,15 +74,9 @@ const CreatePopup = () => {
         <Box className="p-4 rounded-md">
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-5">
-              <label
-                htmlFor="email"
-                className="my-2 flex items-center justify-between text-sm font-medium text-gray-900"
-              >
-                {t("login.email")}
-              </label>
+              <Label label={t("login.email")} htmlFor="email" />
               <div className="mt-1">
                 <Input
-                  value={""}
                   {...register("email")}
                   placeholder={t("login.emailPlaceholder") || ""}
                 />
@@ -124,15 +89,9 @@ const CreatePopup = () => {
             </div>
 
             <div className="mb-5">
-              <label
-                htmlFor="name"
-                className="my-2 flex items-center justify-between text-sm font-medium text-gray-900"
-              >
-                {t("login.name")}
-              </label>
+              <Label label={t("login.name")} htmlFor="name" />
               <div className="mt-1 relative rounded-md shadow-sm">
                 <Input
-                  value={""}
                   {...register("name")}
                   placeholder={t("login.namePlaceholder") || ""}
                 />
@@ -145,15 +104,9 @@ const CreatePopup = () => {
             </div>
 
             <div className="mb-5">
-              <label
-                htmlFor="password"
-                className="my-2 flex items-center justify-between text-sm font-medium text-gray-900"
-              >
-                {t("login.password")}
-              </label>
+              <Label label={t("login.password")} htmlFor="password" />
               <div className="mt-1 relative rounded-md shadow-sm">
                 <Input
-                  value={"dawd"}
                   type={showPassword ? "text" : "password"}
                   {...register("password")}
                   placeholder={t("login.passwordPlaceholder") || ""}
