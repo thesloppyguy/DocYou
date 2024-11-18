@@ -60,7 +60,7 @@ const LocaleLayout = ({ children }: { children: React.ReactNode }) => {
       >
         {/* <ThemeProvider attribute="class"> */}
         <BrowserInitor>
-          <Theme accentColor="mint" grayColor="sage" appearance={"dark"}>
+          <Theme accentColor="iris" grayColor="sage" appearance={"dark"}>
             <SentryInitor>
               <I18nServer>{children}</I18nServer>
             </SentryInitor>

@@ -54,7 +54,7 @@ const NormalForm = () => {
       });
       if (res.result === "success") {
         localStorage.setItem("console_token", res.data.access_token);
-        router.replace("/home");
+        router.replace("/dashboard/home");
       } else {
         Toast.notify({
           type: "error",
@@ -71,7 +71,7 @@ const NormalForm = () => {
         localStorage.setItem("console_token", consoleToken);
         localStorage.setItem("refresh_token", refreshToken);
         getNewAccessToken();
-        router.replace("/home");
+        router.replace("/dashboard/home");
         return;
       }
 

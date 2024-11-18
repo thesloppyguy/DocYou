@@ -1,6 +1,6 @@
 import classNames from "@/utils/classnames";
 
-const Dashboard = async () => {
+const Dashboard = () => {
   return (
     <div
       className={classNames(

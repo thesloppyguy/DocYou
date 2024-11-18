@@ -68,3 +68,23 @@ export const MAX_TOOLS_NUM = 10
 export const VAR_REGEX = /\{\{(#[a-zA-Z0-9_-]{1,50}(\.[a-zA-Z_][a-zA-Z0-9_]{0,29}){1,10}#)\}\}/gi
 
 export const resetReg = () => VAR_REGEX.lastIndex = 0
+
+export type NavType = "dashboard" | "api" | "playground";
+
+export const navItems: NavType[] = ['dashboard', 'playground', 'api']
+
+export const navTabs = {
+  dashboard: ['home', 'usage', 'storage', 'apikeys'],
+  playground: [
+    'parsers',
+    'classify',
+    'hil',
+    'kyc',
+  ],
+  api: [
+    'introduction',
+    'authentication',
+    'request',
+    'debugging'
+  ]
+}

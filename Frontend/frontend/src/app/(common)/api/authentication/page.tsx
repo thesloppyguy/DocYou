@@ -1,6 +1,6 @@
 import classNames from "@/utils/classnames";
 
-const API = async () => {
+const Dashboard = () => {
   return (
     <div
       className={classNames(
@@ -20,4 +20,4 @@ const API = async () => {
   );
 };
 
-export default API;
+export default Dashboard;

@@ -1,13 +1,11 @@
+import SideBar from "@/app/components/sidebar";
 import React from "react";
 import type { ReactNode } from "react";
 
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="w-[100vw] h-[100vh] overflow-hidden">
-      {/* Local Nav */}
-      <div>{children}</div>
-      {/* Content */}
-      <div>{children}</div>
+    <div className="flex grow p-2">
+      <div className="bg-[#202123] rounded-lg w-full">{children}</div>
     </div>
   );
 };

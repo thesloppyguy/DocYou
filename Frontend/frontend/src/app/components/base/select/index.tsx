@@ -82,7 +82,7 @@ const Select: FC<ISelectProps> = ({
 
   return (
     <RSelect.Root defaultValue={"orange"}>
-      <RSelect.Trigger className="shadow-none" />
+      <RSelect.Trigger className={classNames("shadow-none", className)} />
       <RSelect.Content>
         <RSelect.Item value="orange">Orange</RSelect.Item>
         <RSelect.Item value="apple">Apple</RSelect.Item>

@@ -1,11 +1,28 @@
+"use client";
 import React from "react";
-import TabsDemo from "./nav";
+import NavList from "./nav";
+import { navTabs, NavType } from "@/constant";
 
-const SideBar = () => {
+const SideBar = ({
+  path,
+  current,
+  setCurrent,
+  setOpen,
+}: {
+  path: NavType;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  current: string;
+  setCurrent: React.Dispatch<React.SetStateAction<string>>;
+}) => {
+  const tabs = navTabs[path];
   return (
-    <div>
-      <TabsDemo />
-    </div>
+    <NavList
+      setOpen={setOpen}
+      path={path}
+      options={tabs}
+      current={current}
+      setCurrent={setCurrent}
+    />
   );
 };
 

@@ -1,6 +1,6 @@
 import classNames from "@/utils/classnames";
 
-const Playground = async () => {
+const Dashboard = () => {
   return (
     <div
       className={classNames(
@@ -20,4 +20,4 @@ const Playground = async () => {
   );
 };
 
-export default Playground;
+export default Dashboard;
