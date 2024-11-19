@@ -11,7 +11,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
   const [selected, setSelected] = useState<NavType>(navItems[0]);
   const [current, setCurrent] = useState(navTabs[selected][0]);
   return (
-    <div className="flex flex-col h-[100vh]">
+    <div className="flex flex-col h-[100vh] overflow-hidden">
       <GA gaType={GaType.admin} />
       <SwrInitor>
         <Header
@@ -20,16 +20,16 @@ const Layout = ({ children }: { children: ReactNode }) => {
           setSelected={setSelected}
           selected={selected}
         />
-        <div className="flex w-full grow">
+        <div className="flex w-full h-[calc(100vh-56px)]">
           <div className="flex flex-row w-full">
-            <div className="w-[250px] sm:flex hidden">
+            <div className="w-[250px] md:flex hidden">
               <SideBar
                 path={selected}
                 current={current}
                 setCurrent={setCurrent}
               />
             </div>
-            {children}
+            <div className="flex w-full">{children}</div>
           </div>
         </div>
       </SwrInitor>

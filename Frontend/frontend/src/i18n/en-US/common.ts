@@ -7,7 +7,7 @@ const translation = {
         home: 'Home',
         usage: 'Usage',
         storage: 'Storage',
-        apikeys: 'API Keys',
+        apikeys: 'Keys',
     },
     playground: {
         classify: 'Classify',

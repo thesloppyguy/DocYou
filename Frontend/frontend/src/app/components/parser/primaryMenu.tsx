@@ -5,7 +5,6 @@ import {
   RiAddLine,
   RiBrushLine,
   RiDownloadLine,
-  RiEdgeLine,
   RiEditLine,
   RiKeyLine,
   RiUploadLine,
@@ -14,10 +13,10 @@ import Tooltip from "../base/tooltip";
 import { Parser } from "@/models/parser";
 
 interface IPrimaryMenuProps {
-  parser: Parser | null;
+  parser: Parser[];
 }
 
-const PrimaryMenu: FC<IPrimaryMenuProps> = ({ parser }) => {
+const PrimaryMenu: FC<IPrimaryMenuProps> = ({}) => {
   return (
     <div className="flex w-full h-full justify-between">
       <div className="flex gap-2">

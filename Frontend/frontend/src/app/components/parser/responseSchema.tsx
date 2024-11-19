@@ -1,7 +1,8 @@
-import { Parser, Schema, SchemaFields } from "@/models/parser";
+import { Parser, Schema } from "@/models/parser";
 import React, { FC } from "react";
 import Button from "../base/button";
 import { RiAddLine } from "@remixicon/react";
+import { useTranslation } from "react-i18next";
 
 interface IResponseSchema {
   file: File | null;
@@ -11,7 +12,8 @@ interface IResponseSchema {
   setResponse: React.Dispatch<React.SetStateAction<any>>;
 }
 
-const ResponseSchema: FC<IResponseSchema> = ({ schema, setSchema, parser }) => {
+const ResponseSchema: FC<IResponseSchema> = ({ schema, setSchema }) => {
+  const { t } = useTranslation();
   const handleAddField = () => {
     setSchema((prevSchema) => ({
       ...prevSchema,
@@ -40,52 +42,44 @@ const ResponseSchema: FC<IResponseSchema> = ({ schema, setSchema, parser }) => {
   };
   const handleAddTableField = () => {};
   return (
-    <div className="flex flex-col h-full w-full">
-      <div className="flex w-full flex-col">
-        <div className="flex flex-col gap-2 p-1 max-h-[620px] overflow-y-scroll">
-          <div>
-            {schema.fields.map((field) => (
-              <div key={field.name}>{field.name}</div>
-            ))}
-          </div>
-          <div>
-            <Button onClick={handleAddField} className="w-full cursor-pointer">
-              {" "}
-              <RiAddLine size="16" /> Add Field
-            </Button>
-          </div>
-          <div>
-            {schema.tables.map((table) => (
-              <div key={table.name}>
-                <div>{table.name}</div>
-                <div>
-                  {table.fields.map((field) => (
-                    <div key={field.name}>{field.name}</div>
-                  ))}
-                </div>
-                <div>
-                  <Button
-                    className="w-full cursor-pointer"
-                    onClick={handleAddTableField}
-                  >
-                    <RiAddLine size="16" /> Add Field to Table
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div>
-            <Button onClick={handleAddTable} className="w-full cursor-pointer">
-              {" "}
-              <RiAddLine size="16" /> Add Table
-            </Button>
-          </div>
-        </div>
+    <div className="p-2 flex w-full flex-col gap-2 overflow-y-auto">
+      <div>{t("parser.responseSchema")}</div>
+      <div>
+        {schema.fields.map((field) => (
+          <div key={field.name}>{field.name}</div>
+        ))}
       </div>
-
-      <div className="flex gap-2 h-[40px] w-full justify-around p-2 border-t-[1px] border-black">
-        <Button className="min-w-[30%] cursor-pointer">Save Schema</Button>
-        <Button className="min-w-[30%] cursor-pointer">Save & Submit</Button>
+      <div>
+        <Button onClick={handleAddField} className="w-full cursor-pointer">
+          {" "}
+          <RiAddLine size="16" /> Add Field
+        </Button>
+      </div>
+      <div>
+        {schema.tables.map((table) => (
+          <div key={table.name}>
+            <div>{table.name}</div>
+            <div>
+              {table.fields.map((field) => (
+                <div key={field.name}>{field.name}</div>
+              ))}
+            </div>
+            <div>
+              <Button
+                className="w-full cursor-pointer"
+                onClick={handleAddTableField}
+              >
+                <RiAddLine size="16" /> Add Field to Table
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div>
+        <Button onClick={handleAddTable} className="w-full cursor-pointer">
+          {" "}
+          <RiAddLine size="16" /> Add Table
+        </Button>
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ import { LanguagesSupported } from '@/i18n/language'
 const loadLangResources = (lang: string) => ({
   translation: {
     common: require(`./${lang}/common`).default,
-    // layout: require(`./${lang}/layout`).default,
+    parser: require(`./${lang}/parser`).default,
     login: require(`./${lang}/login`).default,
     // register: require(`./${lang}/register`).default,
     // app: require(`./${lang}/app`).default,

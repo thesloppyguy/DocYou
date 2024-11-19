@@ -42,7 +42,7 @@ const Header = ({
         </div>
       </div>
       {isOpen && (
-        <div className="top-[42px] w-full h-[94vh] flex grow p-2 absolute sm:hidden ">
+        <div className="top-[42px] w-full h-[94vh] flex grow p-2 absolute sm:hidden z-[1]">
           <div className="bg-[#202123] rounded-lg h-full w-full">
             <MobileNav
               setOpen={setOpen}
